@@ -1,6 +1,8 @@
 class Flashcard {
     constructor(data) {
+        this.checkTTS();
         this.data = data;
+        this.isPlaying = false;
         this.cardIndex = 0;
         this.synth = window.speechSynthesis;
         this.imgSection = document.getElementById("image");
@@ -22,6 +24,19 @@ class Flashcard {
         this.nextButton.addEventListener("click", this.nextCard.bind(this));
     }
 
+    checkTTS() {
+        if (!window.SpeechSynthesisUtterance) {
+            Swal.fire({
+                icon: "error",
+                title: "Speech synthesis is not supported in your device or your browser",
+            });
+            this.questionButton.disabled = true;
+            this.answerButton.disabled = true;
+            this.prevButton.disabled = true;
+            this.nextButton.disabled = true;
+        }
+    }
+
     speak(text, text_vi) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 0.7;
@@ -32,10 +47,12 @@ class Flashcard {
         });
 
         utterance.addEventListener("start", () => {
+            this.isPlaying = true;
             Swal.stopTimer;
         });
 
         utterance.addEventListener("end", () => {
+            this.isPlaying = false;
             Swal.resumeTimer;
         });
     }
@@ -46,11 +63,11 @@ class Flashcard {
     }
 
     sayQuestion() {
-        this.speak(this.data[this.cardIndex].ques, this.data[this.cardIndex].ques_vi);
+        !this.isPlaying && this.speak(this.data[this.cardIndex].ques, this.data[this.cardIndex].ques_vi);
     }
 
     sayAnswer() {
-        this.speak(this.data[this.cardIndex].answ, this.data[this.cardIndex].answ_vi);
+        !this.isPlaying && this.speak(this.data[this.cardIndex].answ, this.data[this.cardIndex].answ_vi);
     }
 
     nextCard() {
