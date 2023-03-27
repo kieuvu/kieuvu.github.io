@@ -1,27 +1,22 @@
 class Flashcard {
     constructor(data) {
-        this.checkTTS();
         this.data = data;
         this.isPlaying = false;
         this.cardIndex = 0;
         this.synth = window.speechSynthesis;
-        this.imgSection = document.getElementById("image");
-        this.prevButton = document.getElementById("navigation_prev");
-        this.nextButton = document.getElementById("navigation_next");
-        this.currentCard = document.getElementById("current_card");
-        this.questionButton = document.getElementById("audio_question");
-        this.answerButton = document.getElementById("audio_answer");
-        this.toast = Swal.mixin({
-            toast: true,
-            position: "center",
-            timer: 3000,
-            showConfirmButton: false,
-        });
+        this.imgSection = null;
+        this.prevButton = null;
+        this.nextButton = null;
+        this.currentCard = null;
+        this.questionButton = null;
+        this.answerButton = null;
+        this.toast = null;
+    }
+
+    start() {
+        this.checkTTS();
         this.renderCard();
-        this.questionButton.addEventListener("click", this.sayQuestion.bind(this));
-        this.answerButton.addEventListener("click", this.sayAnswer.bind(this));
-        this.prevButton.addEventListener("click", this.prevCard.bind(this));
-        this.nextButton.addEventListener("click", this.nextCard.bind(this));
+        this.loadDomEvt();
     }
 
     checkTTS() {
@@ -35,6 +30,28 @@ class Flashcard {
             this.prevButton.disabled = true;
             this.nextButton.disabled = true;
         }
+    }
+
+    setToast(toast) {
+        this.toast = toast;
+        return this;
+    }
+
+    setDom(imgSection, prevButton, nextButton, currentCard, questionButton, answerButton) {
+        this.imgSection = imgSection;
+        this.prevButton = prevButton;
+        this.nextButton = nextButton;
+        this.currentCard = currentCard;
+        this.questionButton = questionButton;
+        this.answerButton = answerButton;
+        return this;
+    }
+
+    loadDomEvt() {
+        this.questionButton.addEventListener("click", this.sayQuestion.bind(this));
+        this.answerButton.addEventListener("click", this.sayAnswer.bind(this));
+        this.prevButton.addEventListener("click", this.prevCard.bind(this));
+        this.nextButton.addEventListener("click", this.nextCard.bind(this));
     }
 
     speak(text, text_vi) {
@@ -81,4 +98,16 @@ class Flashcard {
     }
 }
 
-const flashcard = new Flashcard(data);
+new Flashcard(data).setToast(Swal.mixin({
+    toast: true,
+    position: "center",
+    timer: 3000,
+    showConfirmButton: false,
+})).setDom(
+    document.getElementById("image"),
+    document.getElementById("navigation_prev"),
+    document.getElementById("navigation_next"),
+    document.getElementById("current_card"),
+    document.getElementById("audio_question"),
+    document.getElementById("audio_answer")
+).start();
